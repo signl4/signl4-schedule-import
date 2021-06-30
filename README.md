@@ -37,9 +37,9 @@ The .csv file has the following format:
 
 Email,Start,End
 
-Email: The email address of the SIGNL4 user. If you use 'DELETE', all scheduled in the given range are deleted.  
-Start: Schedule start date and time.  
-End: Schedule end date and time.  
+**Email**: The email address of the SIGNL4 user. If you use 'DELETE', all scheduled in the given range are deleted.  
+**Start**: Schedule start date and time.  
+**End**: Schedule end date and time.  
 
 Attention! All times are UTC times.
 
