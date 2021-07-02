@@ -31,6 +31,8 @@ const strTeamName = 'Super SIGNL4';
 
 You can create the API key in your SIGNL4 web portal under Teams -> Developer.
 
+The command line execution returns result information about success or failure from the API call.
+
 ## CSV File
 
 The .csv file has the following format:
