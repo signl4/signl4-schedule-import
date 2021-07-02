@@ -1,25 +1,27 @@
 
+// SIGNL4 duty schedule importer.
+// This sample is provided as is with no guarantees, please use with care. 
+
 const fetch = require('node-fetch');
 
 const csv = require('csv-parser');
 const fs = require('fs');
 const { exit } = require('process');
 
-const strAPIKey = 'YOUR-SIGNL4-API-KEY';
+const strAPIKey = 'a1bec1d5f58b861ac283eeae6d3525675a1d584b7c3628ece8d9a13a4428ff3f';
 const strTeamName = 'Super SIGNL4';
 
 // Command line arguments
 const args = process.argv;
 
+// Check for the .csv path argument 
 if (args.length < 3) {
   console.log('Please specify a .csv file as argument.');
 
-  //exit();
+  exit();
 }
 
-//const strCSVPath = args[3];
-
-const strCSVPath = 'C:\\Data\\Store\\Projects\\GitHub\\SIGNL4\\SIGNL4-Schedule-Import\\schedules.csv';
+const strCSVPath = args[3];
 
 console.log('Reading .csv file: ' + strCSVPath);
 
@@ -40,6 +42,7 @@ async function importSchedules() {
   readSchedules(strTeamId);
 }
 
+// Read the duty schedules from the .csv file and import (or delete) them
 async function readSchedules(strTeamId) {
   // Read CSV file
   var strUserMail;
