@@ -1,61 +1,186 @@
 
-# SIGNL4 Duty Schedule Import
+// SIGNL4 duty schedule importer.
+// This sample is provided as is with no guarantees, please use with care. 
 
-SIGNL4 offers powerful duty scheduling for routing alerts to the right people at the right time.
+const fetch = require('node-fetch');
 
-In some cases, customers use other tools as leading system for duty scheduling, e.g. SAP, Excel, etc. Here we describe how to import duty schedules from .csv files. If you use other tools or other formats you can first export your scheduled into a .csv file and proceed from there.
+const csv = require('csv-parser');
+const fs = require('fs');
+const { exit } = require('process');
 
-## Usage and Sample Code
-
-Attention: This code is intended as a sample and only lightly tested with no guarantee. Please use with care.
-
-Attention 2: Existing duty schedules will be overridden.
-
-We provide a sample Node.js script for importing duty schedules from a CSV file. The sample file uses the SIGNL4 REST API as documented here:
-[https://connect.signl4.com/api/docs/index.html](https://connect.signl4.com/api/docs/index.html)
-
-As a prerequisite you first need to install Node.js as described [here](https://nodejs.org/en/download/).
-
-The sample code is provided in the file 'schedule-import.js'. You can execute the wile with the node command. The file takes the path to the .csv file as an argument.
-
-Command line sample:
-
-    node schedule-import.js C:\schedule.csv
-
-Within the source file you need to adapt the SIGNL4 API key and the team name:
-
-```
-const strAPIKey = 'YOUR-SIGNL4-API-KEY';
+const strAPIKey = 'a1bec1d5f58b861ac283eeae6d3525675a1d584b7c3628ece8d9a13a4428ff3f';
 const strTeamName = 'Super SIGNL4';
-```
 
-You can create the API key in your SIGNL4 web portal under Teams -> Developer.
+// Command line arguments
+const args = process.argv;
 
-The command line execution returns result information about success or failure from the API call.
+// Check for the .csv path argument 
+if (args.length < 3) {
+  console.log('Please specify a .csv file as argument.');
 
-## CSV File
+  exit();
+}
 
-The .csv file has the following format:
+const strCSVPath = args[3];
 
-Email,Start,End
+console.log('Reading .csv file: ' + strCSVPath);
 
-**Email**: The email address of the SIGNL4 user. If you use 'DELETE', all scheduled in the given range are deleted.  
-**Start**: Schedule start date and time.  
-**End**: Schedule end date and time.  
+// Run
+importSchedules();
 
-Attention! All times are UTC times.
+//var strTeamId =  getTeamId(strTeamName);
+//console.log("Team ID: " + strTeamId);
 
-Sample for scheduling two users:
+// Main function
+async function importSchedules() {
 
-```
-Email,Start,End
-ron@signl4.com,2021-06-30 14:00:00, 2021-06-30 15:00:00
-john.doe@signl4.com,2021-06-39 14:00:00, 2021-06-30 16:00:00
-```
+  // Get the team ID from the team name
+  var strTeamId = await getTeamId(strTeamName);
+  console.log("Team ID: " + strTeamId);
 
-Sample for deleting all schedules within a given range:
+  // Create schedules
+  readSchedules(strTeamId);
+}
 
-```
-Email,Start,End
-DELETE,2021-06-30 14:00:00, 2021-06-30 15:00:00
-```
+// Read the duty schedules from the .csv file and import (or delete) them
+async function readSchedules(strTeamId) {
+  // Read CSV file
+  var strUserMail;
+  var dateStart;
+  var dateEnd;
+  fs.createReadStream(strCSVPath)
+    .on('error', (err) => {
+      // Error
+      console.log('Error reading file: ' + strCSVPath);
+      exit();
+    })  
+    .pipe(csv())
+    .on('data', (row) => {
+      //console.log(row);
+
+      strUserMail = row.Email;
+      dateStart = row.Start;
+      dateEnd = row.End;
+
+      console.log(strUserMail + ', ' + dateStart + ', ' + dateEnd)
+
+      if (strUserMail == 'DELETE') {
+        // Delete schedule range
+        deleteScheduleRange(strTeamId, dateStart, dateEnd);
+      }
+      else {
+        // Create schedule
+        createScheduleHelper(strTeamId, strUserMail, dateStart, dateEnd);
+      }
+    })
+    .on('end', () => {
+      console.log('CSV file successfully processed');
+    });
+  }
+
+// Get the team ID from the team name
+async function getTeamId(strTeamName) {
+  var teamId = "";
+  const res = await fetch('https://connect.signl4.com/api/teams', {
+          method: 'get',
+          headers: { 'X-S4-Api-Key': strAPIKey }
+      });
+
+      const json = await res.json();
+      
+      //console.log(json);
+
+      // Get team id from team name
+      json.forEach(function (item) {
+        if (strTeamName == item.name) {
+          console.log(item.name + ': ' + item.id);
+          teamId = item.id;
+        }
+      });
+
+    return teamId;
+  }
+
+
+// Get user ID from user email
+async function getUserId(strMail) {
+  var userId = "";
+  const res = await fetch('https://connect.signl4.com/api/users', {
+          method: 'get',
+          headers: { 'X-S4-Api-Key': strAPIKey }
+      })
+
+      const json = await res.json();
+      
+      //console.log(json);
+
+      // Get team id from team name
+      json.forEach(function (item) {
+        if (strMail.toLowerCase() == item.mail.toLowerCase()) {
+          console.log(item.mail + ': ' + item.id);
+          userId = item.id;
+        }
+      });
+
+    return userId;
+  }
+
+// Create schedule from user email
+async function createScheduleHelper(teamId, userEmail, start, end) {
+
+      // Get user ID from user email
+      var strUserId = await getUserId(userEmail);
+      console.log("User ID: " + strUserId);
+
+      createSchedule(teamId, strUserId, start, end)
+}
+
+// Create schedule
+async function createSchedule(teamId, userId, start, end) {
+  var dataSchedule = [{
+    'id': '',
+    'options': 0,
+    'start': start,
+    'end': end,
+    'userId': userId
+  }];
+  const res = await fetch('https://connect.signl4.com/api/teams/' + teamId + '/schedules/multiple?overrideExisting=true', {
+          method: 'post',
+          body:    JSON.stringify(dataSchedule),
+          headers: {
+            'X-S4-Api-Key': strAPIKey,
+            'overrideExisting': true,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json' }
+      });
+
+      //const status = await res.statusText;
+      //console.log(status);
+
+      const json = await res.json();
+      
+      console.log(json);
+  }
+
+// Delete schedule range
+async function deleteScheduleRange(teamId, start, end) {
+  var dataSchedule = {
+    'from': start,
+    'to': end
+  };
+  const res = await fetch('https://connect.signl4.com/api/teams/' + teamId + '/schedules/deleteRange', {
+          method: 'post',
+          body:    JSON.stringify(dataSchedule),
+          headers: {
+            'X-S4-Api-Key': strAPIKey,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json' }
+      });
+
+      //const status = await res.statusText;
+      //console.log(status);
+
+      const json = await res.json();
+      
+      console.log(json);
+  }
