@@ -8,7 +8,7 @@ const csv = require('csv-parser');
 const fs = require('fs');
 const { exit } = require('process');
 
-const strAPIKey = 'a1bec1d5f58b861ac283eeae6d3525675a1d584b7c3628ece8d9a13a4428ff3f';
+const strAPIKey = 'MY-SIGNL4-API-Key';
 const strTeamName = 'Super SIGNL4';
 
 // Command line arguments
@@ -81,7 +81,7 @@ async function readSchedules(strTeamId) {
 // Get the team ID from the team name
 async function getTeamId(strTeamName) {
   var teamId = "";
-  const res = await fetch('https://connect.signl4.com/api/teams', {
+  const res = await fetch('https://connect.signl4.com/api/v2/teams', {
           method: 'get',
           headers: { 'X-S4-Api-Key': strAPIKey }
       });
@@ -105,7 +105,7 @@ async function getTeamId(strTeamName) {
 // Get user ID from user email
 async function getUserId(strMail) {
   var userId = "";
-  const res = await fetch('https://connect.signl4.com/api/users', {
+  const res = await fetch('https://connect.signl4.com/api/v2/users', {
           method: 'get',
           headers: { 'X-S4-Api-Key': strAPIKey }
       })
@@ -144,7 +144,7 @@ async function createSchedule(teamId, userId, start, end) {
     'end': end,
     'userId': userId
   }];
-  const res = await fetch('https://connect.signl4.com/api/teams/' + teamId + '/schedules/multiple?overrideExisting=true', {
+  const res = await fetch('https://connect.signl4.com/api/v2/teams/' + teamId + '/schedules/multiple?overrideExisting=true', {
           method: 'post',
           body:    JSON.stringify(dataSchedule),
           headers: {
@@ -168,7 +168,7 @@ async function deleteScheduleRange(teamId, start, end) {
     'from': start,
     'to': end
   };
-  const res = await fetch('https://connect.signl4.com/api/teams/' + teamId + '/schedules/deleteRange', {
+  const res = await fetch('https://connect.signl4.com/api/v2/teams/' + teamId + '/schedules/deleteRange', {
           method: 'post',
           body:    JSON.stringify(dataSchedule),
           headers: {
