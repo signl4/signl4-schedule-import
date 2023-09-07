@@ -1,0 +1,26 @@
+{
+  "type": "module",
+  "name": "signl4-schedule-import",
+  "version": "1.1.0",
+  "description": "Import duty schedules to SIGNL4.",
+  "main": "schedule-import.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/signl4/signl4-schedule-import.git"
+  },
+  "keywords": [
+    "alerting",
+    "schedule",
+    "duty",
+    "import"
+  ],
+  "author": "SIGNL4",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/signl4/signl4-schedule-import/issues"
+  },
+  "homepage": "https://github.com/signl4/signl4-schedule-import#readme"
+}

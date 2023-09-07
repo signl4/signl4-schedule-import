@@ -16,7 +16,7 @@ We provide a sample Node.js script for importing duty schedules from a CSV file.
 
 As a prerequisite you first need to install Node.js as described [here](https://nodejs.org/en/download/).
 
-The sample code is provided in the file 'schedule-import.js'. You can execute the wile with the node command. The file takes the path to the .csv file as an argument.
+The sample code is provided in the files 'schedule-import.js' and 'package.json'. You can execute the file 'schedule-import.js' with the node command. The file takes the path to the .csv file as an argument.
 
 Command line sample:
 
