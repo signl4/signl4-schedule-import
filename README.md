@@ -49,13 +49,13 @@ Sample for scheduling two users:
 
 ```
 Email,Start,End
-ron@signl4.com,2021-06-30 14:00:00, 2021-06-30 15:00:00
-john.doe@signl4.com,2021-06-39 14:00:00, 2021-06-30 16:00:00
+ron@signl4.com,2024-02-01T13:00:00.000Z,2024-02-01T14:00:00.000Z
+john.doe@signl4.com,2024-02-01T13:00:00.000Z,2024-02-01T14:00:00.000Z
 ```
 
 Sample for deleting all schedules within a given range:
 
 ```
 Email,Start,End
-DELETE,2021-06-30 14:00:00, 2021-06-30 15:00:00
+DELETE,2024-02-01T13:00:00.000Z,2024-02-01T14:00:00.000Z
 ```
